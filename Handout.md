@@ -305,3 +305,133 @@ You can name:
 
 ---
 
+## 🔗 Exercise 2.3 — Hand off to a peer agent *(15 min)*
+
+**🎯 Goal:** Add one YAML block, create one peer agent, click one button. Experience what
+user-routed flow between agents feels like — before you see the agent route itself in M3.
+
+### Steps
+
+1. **Create the peer agent.** In your workspace, create a new file:
+   `.github/agents/tech-designer.agent.md`
+
+   Minimal frontmatter:
+   ```yaml
+   ---
+   name: tech-designer
+   description: >
+     Creates a technical design for a Business Central requirement or feature.
+     Give me a requirements-analyst output or a work item ID to design technically.
+   argument-hint: "Requirements-analyst output or work item ID to design"
+   tools: [read, 'microsoft/azure-devops-mcp/*']
+   ---
+   ```
+
+   Body (write this yourself — a few sentences is enough):
+   Describe what the agent should do: take the requirements analysis, produce a technical
+   design — what tables, pages, and codeunits to create or modify, the key integration
+   points, and a suggested implementation approach. Concrete enough for a developer to start.
+
+2. **Add a `handoffs:` block to your requirements-analyst.** Open your
+   `requirements-analyst.agent.md` and add this to the frontmatter, after `tools:`:
+
+   ```yaml
+   handoffs:
+     - label: Create technical design
+       agent: tech-designer
+       prompt: >
+         Create a technical design for the requirement analysed above.
+         Use the analysis findings as the source of truth. Include all flagged gaps
+         as open items requiring PO confirmation before implementation starts.
+       send: false
+   ```
+
+3. **Run your requirements analyst on your assigned work item.** Let it finish.
+
+4. **Look for the handoff button.** Under the agent's finished response, you should see a
+   "Create technical design" button. Click it.
+
+5. **Observe what happens.** The pre-composed prompt lands in the input field — with the
+   analysis context carried forward. Review it. Edit if you want. Submit.
+
+6. **Name who's in charge.** You clicked the button. You walked the edge. The requirements
+   analyst didn't decide to route to the peer — it offered you an option and you took it.
+
+### 🧪 Outcome Notes
+
+| | |
+|---|---|
+| Handoff button appeared? | ☐ Yes ☐ No |
+| Pre-composed prompt looked right? | ☐ Yes ☐ Needed editing |
+| Who decided to route to the peer agent? | ☐ The LLM ☐ Me |
+
+### ✅ Done when
+
+You clicked a handoff button and the peer agent picked up with carried-forward context.
+You can answer: *"who's in charge of routing here — me or the LLM?"*
+
+### ⚠️ Watch out — VS Code only
+
+The `handoffs:` field is a VS Code–only feature. If you run the same agent file as a
+GitHub Cloud Agent (e.g. on a GitHub issue), the field is silently stripped. The buttons
+won't appear — no error, just not supported there. Design accordingly.
+
+### 💡 Pro Tips
+
+> 💡 The most common stuck moment: a typo in the `agent:` field. The name must exactly
+> match the peer agent's `name:` frontmatter value. If the target doesn't exist or the
+> name is wrong, the button silently doesn't work. No validation.
+
+> 💡 `send: false` is the right default for demos and learning. The pre-composed prompt
+> landing in the input *is* the point — you see exactly what gets handed over, and you can
+> edit it before submitting. With `send: true` it auto-fires and you lose that visibility.
+
+> 💡 The `prompt:` field is the quality lever. A lazy handoff just says "do the next step."
+> A good one distills the previous agent's output into a brief — tell the peer what it needs
+> to know, not just what to do.
+
+> 💡 **Stuck?** Both files — the handoff-equipped requirements-analyst and the tech-designer
+> peer — live in `reference/checkpoint-m2-handoff/.github/agents/`. Copy both, run,
+> then go back and understand the `handoffs:` block before moving on.
+
+> 💡 **Done early?** Add a second handoff button. Wire it to a documentation peer agent —
+> same analyst, two buttons: one for technical design, one for user documentation. You've
+> just built a small directed graph of agents.
+
+---
+
+## 📣 Module 2 Debrief
+
+*"What other agent would you build — one that doesn't exist in this repo yet?"*
+
+Think about your own day-to-day: what decision, review, or lookup do you repeat so often
+that it deserves its own persona? Drop one into the polling tool.
+
+---
+
+> ### 🗺️ Who's in charge?
+>
+> Before we get into sub-agents, here's where we are:
+>
+> | Pattern | Who routes? | You built this in |
+> |---|---|---|
+> | Custom agent | You configured it; one agent, one job | M2 Ex 2.1–2.2 |
+> | **Handoff** | **You clicked a button** | **M2 Ex 2.3** |
+> | Sub-agent | The LLM delegates autonomously within a turn | M3 → |
+>
+> The question for Module 3: *what if you didn't have to click?*
+
+---
+
+# 🔀 Module 3 — Sub-agents
+
+> *In M2 you clicked a button to route to the next agent. Sub-agents do that routing
+> themselves — no click, no button, just the LLM deciding to delegate within a turn.*
+
+Your requirements analyst is one agent doing five things. That's fine for simple work
+items — but as the work items get complex, or as you add more dimensions to the analysis,
+the context window starts to matter. Sub-agents let you fan out: multiple specialist
+agents run in parallel, each in its own context, each returning only a summary to the parent.
+
+---
+
