@@ -435,3 +435,189 @@ agents run in parallel, each in its own context, each returning only a summary t
 
 ---
 
+## 🏁 Exercise 3.1 — Ad-hoc sub-agents *(15 min)*
+
+**🎯 Goal:** Feel the parallelism. See the context savings in action.
+
+### Steps
+
+1. **Make sure your requirements analyst has the `agent` tool enabled.** Open the
+   `.agent.md` file and confirm `agent` is in the `tools:` list:
+   ```yaml
+   tools: [read, web, 'microsoft/azure-devops-mcp/*', agent]
+   ```
+   If it's not there, add it and reload VS Code. The `agent` tool is what allows an
+   agent to spin up sub-agents.
+
+2. **Take your requirements analyst from M2** and use it with this prompt:
+   ```
+   Analyse work item #[your assigned ID].
+   Run each of the following as a separate sub-agent and then give me
+   one consolidated summary:
+   1. Ambiguity check — flag all vague language and undefined terms
+   2. Gap analysis — identify missing acceptance criteria and personas
+   3. Base app impact — use AL Symbols to find which BC objects are affected
+   ```
+
+3. **Watch the sub-agent threads spin up** in the chat. Each will show its own
+   tool-use trace. You should see the AL Symbols MCP being called in thread 3.
+
+4. **Read the consolidated summary.** What was combined vs. what was kept separate?
+
+### 🧪 Outcome Notes
+
+- Did three sub-agent threads visibly spin up? ☐ Yes ☐ No
+- Did the consolidated summary collapse duplicate findings? ☐ Yes ☐ No
+- Any sub-agent fail or time out? ☐ No ☐ Yes — which one: ___________
+
+### ✅ Done when
+
+Three sub-agent threads ran and you got back a single consolidated summary.
+
+---
+
+## 🔧 Exercise 3.2 — Bake the fan-out into the agent *(15 min)*
+
+**🎯 Goal:** The agent fans out automatically, without you asking.
+
+### Steps
+
+1. **Open your requirements analyst's `.agent.md` file.**
+
+2. **Add fan-out instructions to the body.** Something like:
+   ```
+   When analysing a work item, always spin up sub-agents for these three tasks
+   in parallel before producing your final output:
+   1. Ambiguity check — vague language, undefined terms
+   2. Gap analysis — missing AC, missing personas, missing edge cases
+   3. Base app impact — AL Symbols lookup for affected BC objects
+   Only return the consolidated summary to me.
+   ```
+
+3. **Add `agent` to your `tools:` list** so the orchestrator can spin up sub-agents:
+   ```yaml
+   tools: [read, web, 'microsoft/azure-devops-mcp/*', agent]
+   ```
+   The `agent` tool is what gives your orchestrator permission to delegate to sub-agents.
+   You'll restrict it to a named custom sub-agent in Ex 3.3.
+
+4. **Re-run with the same prompt as 3.1, but without the explicit sub-agent clause:**
+   ```
+   Analyse work item #[your assigned ID]
+   ```
+
+5. Confirm the fan-out still happens.
+
+### ✅ Done when
+
+The same prompt as 3.1, but without the explicit "run as sub-agent" instruction, still
+produces a fan-out into parallel sub-agent threads.
+
+---
+
+## ⚙️ Exercise 3.3 — A custom agent, used as a sub-agent *(15 min)*
+
+**🎯 Goal:** Build a focused custom agent for one specific job and have your requirements
+analyst delegate to it by name.
+
+### Steps
+
+1. **Create a new agent file:** `.github/agents/base-app-impact-analyzer.agent.md`
+
+   Frontmatter:
+   ```yaml
+   ---
+   name: base-app-impact-analyzer
+   description: >
+     Uses AL Symbols MCP to identify which BC base app tables, pages, and codeunits
+     are relevant to a requirement. Returns a structured impact summary.
+   user-invocable: false
+   model: gpt-4o-mini
+   tools:
+     - al-symbols-mcp
+   ---
+   ```
+
+   In the body: write instructions for this specific job — read the requirement, use
+   AL Symbols to look up the entities mentioned, return a structured impact summary.
+
+   > **Notice `user-invocable: false`** — this agent won't appear in the picker. It's a
+   > specialist tool the orchestrator calls, not something you'd invoke directly. It still
+   > works as a sub-agent.
+
+   > **When to assign a model to a sub-agent**
+   >
+   > Add `model:` to a sub-agent's frontmatter when its job is focused and doesn't need
+   > the full reasoning power of a large model:
+   >
+   > | Task | Model to consider | Why |
+   > |------|-------------------|-----|
+   > | Structured lookup, symbol extraction | Small (`gpt-4o-mini`) | One clear task — speed and cost win |
+   > | Reasoning over multiple findings, synthesis | Large (`gpt-4o`, `claude-sonnet`) | Connecting dots across sources |
+   > | Long document read + summary | Large | Context window + comprehension quality |
+   >
+   > The orchestrator (your requirements analyst) earns the larger model.
+   > Narrow sub-agents doing a single lookup usually don't.
+
+2. **Update your requirements analyst** to call this specific agent by name.
+   Add an `agents:` list to the frontmatter naming your sub-agent:
+   ```yaml
+   agents:
+     - base-app-impact-analyzer
+   ```
+   Add the other named sub-agents here as you build them (ambiguity-detector, etc.).
+   Then update the fan-out instructions in the body to name `base-app-impact-analyzer`
+   explicitly for the base app impact analysis task.
+
+3. **Run end-to-end.** Same prompt, same work item. Confirm the orchestrator delegates
+   to the named agent and `base-app-impact-analyzer` doesn't show up in your agent picker.
+
+### ✅ Done when
+
+Your orchestrator delegates to the named `base-app-impact-analyzer` sub-agent and
+returns a consolidated summary. The base-app-impact-analyzer does NOT appear in the
+agent picker dropdown.
+
+### 💡 Pro Tips
+
+> 💡 Look at `reference/checkpoint-m3/` if you're stuck. Read the orchestrator file
+> and the four sub-agent files — the structure is the answer.
+
+> 💡 The `user-invocable: false` flag is the M4.0 matrix "custom agent instructions"
+> point in action: the agent's *scope* (not user-invocable, only callable by orchestrators)
+> is part of its definition. That's a design decision, not an afterthought.
+
+---
+
+## 📣 Module 3 Debrief
+
+*"When do you stop subdividing?"*
+
+Drop one word or phrase into the polling tool (word cloud format). The edges are where it gets interesting.
+
+---
+
+---
+
+# 🎛️ Module 4 — Skills, and where everything else fits
+
+> *Same content can technically live anywhere in the instruction stack. The trick is
+> putting it where it'll actually be loaded at the right moment.*
+
+A skill is a prompt file with frontmatter. The name and description are loaded up front,
+every time. The body is loaded **lazily** — only when the agent decides the description
+matches the current task. That lazy loading is what makes skills different from putting
+the same content in the agent's instructions.
+
+The five surfaces where instructions can live (the M4.0 slide you can photograph):
+
+| Surface | Always loaded? | Who decides when? | Best for |
+|---------|---------------|-------------------|----------|
+| `copilot-instructions.md` | ✅ Always | Project-wide, automatic | Context every agent needs |
+| Custom agent instructions | ✅ Always (for this agent) | You, when you pick the agent | Persona + scope for this job |
+| Skill frontmatter (name + description) | ✅ Always | Agent, based on task | When should this be loaded? |
+| Skill body | ❌ Lazy | Agent, based on description | What to do when loaded |
+| `.prompt.md` files | ❌ Manual invoke | You, explicitly | One-off pattern; manual trigger |
+
+---
+
