@@ -1,0 +1,2 @@
+# AL compiler output — keep .alpackages and .snapshots, they're needed for AL Symbols MCP
+*.app.bak

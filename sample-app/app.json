@@ -1,0 +1,26 @@
+{
+  "id": "bc4d7f2a-1e3c-4a5b-9d0f-e8c6a2b1d4f7",
+  "name": "Workshop Feedback",
+  "publisher": "BC TechDays Workshop",
+  "version": "1.0.0.0",
+  "brief": "A sample Business Central extension for the BC TechDays 2026 workshop. Used as the documentation subject across all five modules and as the M5 background-agent tooltip target.",
+  "description": "Workshop Feedback captures participant ratings and comments at the end of each training session. Intentionally simple — the focus is on the documentation and AI workflows, not the business logic.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "26.0.0.0",
+  "application": "26.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50109
+    }
+  ],
+  "contextSensitiveHelpUrl": "https://example.com/help/",
+  "runtime": "14.0",
+  "features": ["TranslationFile"]
+}
