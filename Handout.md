@@ -621,3 +621,179 @@ The five surfaces where instructions can live (the M4.0 slide you can photograph
 
 ---
 
+## 🏁 Exercise 4.1 — Draft a v1 skill *(15 min)*
+
+**🎯 Goal:** A skill file that your agent actually picks up in the right context.
+
+### Steps
+
+1. **Pick a workflow where your requirements analyst currently wastes loops.** Something
+   it does wrong or inconsistently — a pattern you've had to re-explain multiple times.
+
+2. **If nothing comes to mind, build the INVEST-check skill** (this is the M4.1
+   fallback — it demos lazy loading cleanly and plugs into the work you've already done):
+
+   Create the directory and file: `.github/skills/invest-check/SKILL.md`
+
+   ```yaml
+   ---
+   name: invest-check
+   description: >
+     Load when reviewing, writing, or assessing acceptance criteria for a user story
+     or work item. Provides the INVEST checklist. Do not load for general requirements
+     questions, dependency analysis, or language review.
+   ---
+   ```
+
+   Body: write a structured INVEST evaluation guide — one section per principle
+   (Independent, Negotiable, Valuable, Estimable, Small, Testable), with what to check,
+   what the red flags are, and how to suggest a fix.
+
+3. **Save the file.** The `name:` field in the frontmatter must match the directory name
+   (`invest-check`). VS Code will pick it up automatically.
+
+4. **Verify the agent loads it.** Ask your requirements analyst to review the acceptance
+   criteria of a work item. Check whether the invest-check skill appears in the tool-use
+   trace (it should show as a skill being loaded).
+
+### ✅ Done when
+
+The skill file exists and is picked up by the agent when you ask it to review acceptance
+criteria — but not when you ask it to list dependencies or analyse language.
+
+### 💡 Pro Tips
+
+> 💡 The skill description is the critical part. If the agent isn't loading the skill,
+> the fix is almost always in the description — make it more specific about *when* to load.
+> Compare the description to what you actually asked: would those words match?
+
+> 💡 The answer-key version of this skill is at
+> `reference/checkpoint-m4/.github/skills/invest-check/SKILL.md` — read it after you've
+> written your own, not before.
+
+---
+
+## 🔧 Exercise 4.2 — Layered improvement loop *(15 min)*
+
+**🎯 Goal:** Experience all three layers of the improvement loop — and know which layer
+to fix when something goes wrong.
+
+### Steps
+
+1. **Run the workflow with the skill loaded.** Ask your requirements analyst to do
+   something where the skill should be loaded. Let it fumble or wander somewhere.
+
+2. **Ask the agent directly:**
+   ```
+   What should I have given you up front that you had to infer or guess?
+   Where does that information belong — in your agent instructions,
+   in the skill body, or in the skill description?
+   ```
+
+3. **Receive the diagnosis.** The agent will usually tell you:
+   - "I should always know X" → put it in the **agent instructions** (always loaded)
+   - "I needed X when I was doing Y" → put it in the **skill body** (lazy loaded)
+   - "I wasn't sure whether to load the skill" → improve the **skill description**
+
+4. **Apply the fix in the right layer.** Edit the correct file. Re-run.
+
+### 🧪 Outcome Notes
+
+What did the agent tell you to add?
+
+```
+Agent said it needed: _______________________________________________
+Layer I put it in: ☐ Agent instructions  ☐ Skill body  ☐ Skill description
+Why that layer: _____________________________________________________
+```
+
+### ✅ Done when
+
+You can name:
+- **(a)** one concrete thing the agent told you to add
+- **(b)** which of the three layers you put it in, and why
+
+### 💡 Pro Tips
+
+> 💡 The most common mistake: putting everything in the agent instructions because
+> "that's where the other stuff is." The agent instructions are loaded on every call.
+> Checklist content (like INVEST) only matters for one specific sub-task — it belongs
+> in a lazily-loaded skill body, not in the always-loaded instructions.
+
+---
+
+## ⚡ Exercise 4.2 extension — Architecture context as a skill *(fast finishers)*
+
+**🎯 Goal:** Use the same self-assessment pattern to create a skill from real architecture
+documentation. Then see the agent reason explicitly about the skill/instructions boundary.
+
+### Steps
+
+1. **Point the agent at the architecture resources.** Open a new chat with your requirements
+   analyst and try:
+   ```
+   Read the architecture documentation from the ADO wiki (Resources → Architecture)
+   and tell me:
+   1. What information here would improve your technical analysis?
+   2. Which parts belong in your agent instructions (always loaded)?
+      Which belong in a lazily-loaded skill?
+
+   Then create the skill file for the architecture guidance at
+   .github/skills/architecture-context/SKILL.md
+   ```
+
+2. **Watch the agent reason about the boundary.** It will typically classify things like:
+   - Project stack and conventions → "I should always know this" → agent instructions
+   - C4 model checklist, integration patterns → "Only needed for architectural requirements"
+     → skill body
+   - "I wasn't sure whether to load the skill" → improve the skill *description*
+
+3. **Check the skill description.** The description is the routing key — if it's too broad
+   (loads on every analysis), the skill isn't lazy. If it's too narrow (never loads), it's
+   useless. Make it specific: "load when requirement involves architectural decisions..."
+
+4. **Run it on a work item with clear architectural scope.** Does the skill load? Does it
+   improve the output?
+
+### ✅ Done when
+
+A skill file exists, the agent loads it for architectural requirements but not for simple
+field additions, and you can explain why each part landed in its layer.
+
+### 💡 Pro Tips
+
+> 💡 The reference checkpoint at `reference/checkpoint-m4-architecture/` shows one outcome —
+> both the skill file and the updated agent instructions. Read it *after* you've written
+> your own version, not before.
+
+> 💡 The architecture-context skill's description is longer and more specific than the
+> INVEST skill's. That's intentional — it needs to distinguish architectural work items
+> from routine requirements without being so specific it never fires.
+
+---
+
+## 📣 Module 4 Debrief
+
+*"What other skill would you build?"*
+
+Think about recurring patterns in your work — analysis steps, formatting rules, domain
+knowledge lookups — that could live lazily in a skill rather than always in the agent
+instructions. Drop one into the polling tool.
+
+---
+
+---
+
+# 🌑 Module 5 — Background Agents
+
+> *Why are you watching it work? You're not adding value. Send it off. Come back when it's done.*
+
+A background agent runs without you watching it. You give it a task, point it at an
+isolated Git worktree (so it can't touch your working files), and go do something else.
+When it's done, you review the diff and apply the changes you want.
+
+The key moment in this module isn't the technical setup — it's making yourself
+**not watch it**. That's the uncomfortable part for most people. Lean into it.
+
+---
+
