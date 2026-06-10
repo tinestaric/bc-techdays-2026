@@ -797,3 +797,181 @@ The key moment in this module isn't the technical setup — it's making yourself
 
 ---
 
+## 🏁 Exercise 5.1 — One task, off to the background *(15 min)*
+
+**🎯 Goal:** Run an agent without watching it. Apply (or reject) its changes when it's done.
+
+The task: update the missing tooltips in `sample-app/src/Tables/WorkshopFeedback.Table.al`
+and `sample-app/src/Pages/WorkshopFeedbackCard.Page.al`. Some fields are missing a
+`ToolTip` property — the agent needs to find them and add well-formed BC tooltip text.
+
+### Steps
+
+1. **Set the session target to Copilot CLI (terminal):**
+   - Copilot Chat → Agent picker → select the session target selector
+   - Switch from "VS Code" to "Copilot CLI" (or "Terminal")
+   - Set isolation mode to **Worktree** — this creates a separate Git branch folder
+     so the agent can't accidentally edit your working files
+
+2. **Send the task:**
+   ```
+   Add ToolTip properties to all fields in the Workshop Feedback extension
+   that are currently missing them.
+
+   Files to update:
+   - sample-app/src/Tables/WorkshopFeedback.Table.al
+   - sample-app/src/Pages/WorkshopFeedbackCard.Page.al
+
+   BC tooltip conventions:
+   - Present tense, start with "Specifies"
+   - Match the style of the existing tooltips in the same file
+   - Don't change any field that already has a ToolTip
+   ```
+
+3. **Switch back to VS Code. Do something else.**
+   - Finish anything from M4 you didn't complete
+   - Get coffee
+   - **Don't sit and stare at the terminal**
+
+4. **When the notification appears that the task is done**, come back.
+
+5. **Review the diff.** Open the changed files and read what the agent wrote.
+   Apply the changes you want. Reject any you don't.
+
+### 🧪 Outcome Notes
+
+- Did the agent correctly identify only the fields without tooltips? ☐ Yes ☐ No
+- Did it match the "Specifies..." convention from the existing tooltips? ☐ Yes ☐ No
+- Did it change anything it shouldn't have? ☐ No ☐ Yes — what: _____________
+- Did you apply all its changes, or reject some? ☐ All ☐ Some — rejected: _______
+
+### ✅ Done when
+
+You ran an agent without watching it, and you reviewed and applied (or rejected) its
+changes. That's it. The quality is secondary to the experience of giving up the visibility.
+
+### ⚠️ Watch out
+
+> The worktree isolation means the agent is working in a separate folder, not your
+> main workspace. When it finishes, VS Code will offer to apply the diff back to your
+> workspace. Review before you apply — the agent may have made changes you'd phrase
+> differently.
+
+### 💡 Pro Tips
+
+> 💡 The "I'm not watching it" feeling is the lesson. Most people's instinct is to keep
+> one eye on the terminal. Resist. Make yourself do something else. You'll find it gets
+> more comfortable with practice — and it frees up your attention for higher-value work.
+
+> 💡 The task file format (what you can send to a background agent) is the same as any
+> other agent prompt. The difference is only the runtime target (CLI) and the isolation
+> (worktree). Any well-structured prompt works.
+
+---
+
+---
+
+## 🔧 Exercise 5.2 — GitHub Copilot CLI *(15 min)*
+
+**🎯 Goal:** Run Copilot with MCP tools from the terminal — same agent capability, different surface.
+
+GitHub Copilot CLI (`gh copilot`) brings the same agent into your terminal session.
+The MCPs configured in this repo are available to it, so you can query ADO, look up docs,
+or run analysis tasks — all from the command line, without opening a chat panel.
+
+### Steps
+
+1. **Open a terminal** in VS Code (Terminal → New Terminal).
+
+2. **Verify your setup** from Exercise 1.1:
+   ```
+   gh copilot --version
+   ```
+   If `gh copilot` isn't found, run `gh extension install github/gh-copilot` first.
+
+3. **Give it a real task:**
+   ```
+   gh copilot suggest "Query my work items from the BCTechDays2026 ADO project.
+   For each item, tell me whether it looks sprint-ready based on INVEST.
+   Use the azure-devops MCP tools."
+   ```
+
+4. **Compare the experience** to what you built in M2–M4 in VS Code:
+   - What's the same? What's different?
+   - When would you prefer the CLI over the chat panel?
+   - What would you need to add to make this your go-to sprint-planning shortcut?
+
+### ✅ Done when
+
+You've run at least one `gh copilot` command that called an MCP tool and returned a real
+response from your ADO backlog.
+
+### 💡 Pro Tips
+
+> 💡 `gh copilot suggest` is for tasks and queries — it interprets natural language and
+> calls tools. `gh copilot explain` takes a command and explains what it does. Both have
+> access to the same MCP tools as the VS Code extension when run inside a VS Code terminal.
+
+> 💡 For longer, multi-step tasks (file edits, orchestrated sub-agents), the VS Code
+> background agent is still better. CLI mode is best for quick lookups, one-shot queries,
+> and situations where you want to stay in the terminal.
+
+---
+
+## 📣 Module 5 Debrief
+
+The "freeing or wrong?" vote is the opening of the Closing — we'll do it there, not here.
+Come back when it's done, grab coffee if you need it, then we close out the day.
+
+---
+
+---
+
+# 🎬 Closing — What we didn't cover, and why
+
+Things that exist and are useful — we just didn't have time, or they didn't fit the arc:
+
+**Stored prompt files (`.prompt.md`)** — the `draft-release-notes.prompt.md` in this repo
+is the sample. Useful pattern; we mostly moved away from them because skills with good
+descriptions do the same job and can be loaded automatically. If you're using prompts
+heavily, ask yourself: could this be a skill instead?
+
+**GitHub Cloud Agent** — neither of us uses it day-to-day. Different ergonomics, different
+access model. Worth exploring if you're working with GitHub Actions or cloud-based pipelines.
+
+**Code review** — explicitly out of scope here. The audience is too mixed, and code analysis
+(what you did in M3 with AL Symbols) is a more useful framing for this group.
+
+**Test plans** — we'd be happy to dig into this in Q&A. Luc's full internal 4PS write-up
+is on the workshop AzDevOps wiki: *Resources → Test Plans*. It's a take-home asset —
+you have stakeholder access to the wiki beyond today.
+
+**Vendor-specific agents** (Claude Code, Codex, etc.) — different licenses, different
+ergonomics. The patterns from today (agents, sub-agents, skills) transfer — the UI differs.
+
+**Code generation itself** — the whole other workshop. Everything you built today is the
+foundation. Pointing a well-scoped agent with the right skills at a code task is one more
+application of the same patterns.
+
+---
+
+## 📋 Monday morning
+
+*Pick one thing from today. What's the smallest version of it you can do at work tomorrow?*
+
+Not "set up a full multi-agent requirements pipeline." One thing. Some options:
+
+| Size | Example |
+|------|---------|
+| 5 minutes | Install one MCP (AzDevOps) in your own VS Code |
+| 30 minutes | Build a v1 requirements-analyst for your own team's work items |
+| An afternoon | Run M2.2's wiki-absorption exercise with your own team's style guide |
+| This week | Build the fan-out orchestrator from M3 and run it on your next sprint backlog |
+
+The patterns don't expire. This repo stays live. The wiki stays accessible.
+
+---
+
+*Questions: Tine — tine@staric.net · Luc — lvanvugt@fluxxus.nl*
+
+*Feedback on the workshop itself: use the Workshop Feedback form in BC — or tell us directly.*
