@@ -184,3 +184,124 @@ in one click. That last part is Exercise 2.3.
 
 ---
 
+## 🏁 Exercise 2.1 — Build your own requirements analyst *(15 min)*
+
+**🎯 Goal:** A working `requirements-analyst.agent.md` that loads in the agent picker
+and accepts a prompt. It doesn't need to be good yet — that's Exercise 2.2.
+
+### Steps
+
+1. Open Copilot chat and use the `/create agent` skill as your starting point:
+   ```
+   /create agent
+   ```
+   Follow the prompts to generate a skeleton. You'll customise it next.
+
+2. Create the file `.github/agents/requirements-analyst.agent.md` in this workspace
+   (VS Code may offer to create it for you from the `/create agent` output).
+
+3. Fill in or edit the frontmatter:
+   ```yaml
+   ---
+   name: requirements-analyst
+   description: >
+     Analyses software requirements for quality and completeness.
+     Give me a work item ID or paste requirement text to analyse.
+   argument-hint: "Work item ID or requirement text to review"
+   tools: [read, web, 'microsoft/azure-devops-mcp/*']
+   ---
+   ```
+
+4. Write a short instructions body — a few sentences on what the agent should do.
+   Don't overthink it. You'll improve it substantially in 2.2.
+
+5. Save the file. Check that the agent appears in the Copilot agent picker
+   (the dropdown in the chat panel header).
+
+6. Pick your agent and send it a prompt:
+   ```
+   Analyse work item #1
+   ```
+
+### ✅ Done when
+
+Your agent appears in the picker, responds to a prompt, and attempts to call the
+Azure DevOps MCP to read the work item. The quality of the output doesn't matter yet.
+
+### 💡 Pro Tips
+
+> 💡 The `description:` field is what the agent picker shows as the subtitle. Make it
+> specific about what to give the agent — it's also the hint that helps Copilot decide
+> whether to suggest this agent automatically.
+
+> 💡 If VS Code doesn't pick up your new agent, try: Command Palette →
+> "GitHub Copilot: Refresh Agents". Or reload the window.
+
+> 💡 **Stuck?** A minimal working starter agent lives in `reference/m2/.github/agents/`.
+> Copy it to your own `.github/agents/` folder and continue from there. Build on it in
+> Ex 2.2 — don't just run it.
+
+---
+
+## 🧱 Exercise 2.2 — Iterate: let the agent absorb what *good* looks like *(25 min)*
+
+**🎯 Goal:** Experience the *fix the agent, not the prompt* pattern — and let the agent
+absorb best-practice guidance from a curated reference source. This is the pattern
+you take home.
+
+### Steps
+
+1. **Run your agent from 2.1** on the AzDevOps work item assigned to your seat.
+   Look at the output: what's missing, what's vague, what did it get right?
+   Take 2 minutes to note down 2–3 specific gaps.
+
+2. **Point the agent at the wiki.** Open a new chat with your agent and try:
+   ```
+   Read these URLs and pull out the points a good requirements analyst
+   should always check. Add the relevant ones to your own instructions.
+
+   - https://xp123.com/invest-in-good-stories-and-smart-tasks/
+   - https://www.agilealliance.org/glossary/user-stories/
+   - http://www.volere.org/volere-requirements-specification-template/
+   ```
+   Watch the agent read the URLs (fetch tool calls visible in trace), extract key
+   criteria, and propose updates to its own instructions. Accept or refine the additions.
+
+3. **Re-run on the same work item.** Compare the output to Step 1. What got better?
+
+4. **Find one remaining gap.** Pick one specific thing the agent still does wrong or
+   inconsistently. This is your manual improvement.
+
+5. **Fix the agent, not the prompt.** Open the `.agent.md` file and add or refine
+   a specific instruction to address the gap you found. Re-run. Compare again.
+
+### 🧪 Outcome Notes
+
+| | Before wiki absorption | After wiki absorption | After manual fix |
+|--|--|--|--|
+| INVEST coverage | | | |
+| Acceptance criteria check | | | |
+| Output structure | | | |
+
+### ✅ Done when
+
+You can name:
+- **(a)** one concrete thing the agent absorbed from the wiki that improved its output
+- **(b)** one specific instruction-level fix you made on top of that
+
+### 💡 Pro Tips
+
+> 💡 The agent reading URLs is itself the demo: this is how you bootstrap any agent
+> with external expertise. Point it at documentation, guides, internal wikis — the same
+> pattern works anywhere there's a URL.
+
+> 💡 If the agent proposes instructions you don't want, reject them specifically:
+> "Don't add the Volere template sections — too heavyweight for our sprints. Keep only
+> the INVEST and Agile Alliance points." Negotiate. That's the N in INVEST.
+
+> 💡 **Done early?** Go back and look at what the agent wrote for each INVEST principle.
+> Pick the one verdict you'd phrase differently — and fix the agent's instructions so it
+> would phrase it your way next time.
+
+---
+
