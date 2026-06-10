@@ -1,0 +1,38 @@
+{
+  "mcpServers": {
+    "microsoft/azure-devops-mcp": {
+      "type": "http",
+      "url": "https://mcp.dev.azure.com/fluxxusnl",
+      "tools": [
+        "*"
+      ]
+    },
+    "microsoftdocs/mcp": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp",
+      "tools": [
+        "*"
+      ]
+    },
+    "al-symbols-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "al-mcp-server"
+      ],
+      "tools": [
+        "*"
+      ]
+    },
+    "bc-code-intel": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "bc-code-intelligence-mcp"
+      ],
+      "tools": [
+        "*"
+      ]
+    }
+  }
+}
